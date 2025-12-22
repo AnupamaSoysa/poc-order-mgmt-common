@@ -37,4 +37,4 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}}
           prompt: ${{ steps.p.outputs.prompt }}
-          claude_args: "--max-turns 8"
+          claude_args: "--max-turns 20"
