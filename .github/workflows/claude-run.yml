@@ -1,0 +1,39 @@
+name: Claude Run
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        required: true
+        default: "implement"
+      issue_number:
+        required: true
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  claude:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build prompt
+        id: p
+        run: |
+          MODE="${{ inputs.mode }}"
+          ISSUE="${{ inputs.issue_number }}"
+          if [ "$MODE" = "implement" ]; then
+            echo "prompt=Implement Issue #$ISSUE. Make minimal changes, add tests if applicable, push a branch and open a PR. Include How to test." >> $GITHUB_OUTPUT
+          else
+            echo "prompt=Triage Issue #$ISSUE. Ask blocker questions, produce acceptance criteria + plan + test plan." >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run Claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: ${{ steps.p.outputs.prompt }}
+          claude_args: "--max-turns 8"
